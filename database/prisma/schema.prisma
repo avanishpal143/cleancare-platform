@@ -1,0 +1,971 @@
+// ============================================================
+// CleanCare — Prisma Schema
+// Database: PostgreSQL
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  OPERATIONS_MANAGER
+  PROCESSING_MANAGER
+  QC_USER
+  SUPPORT_AGENT
+  FINANCE_USER
+  DRIVER
+  CUSTOMER
+}
+
+enum OrderStatus {
+  BOOKED
+  PICKUP_ASSIGNED
+  PICKED_UP
+  RECEIVED
+  PROCESSING
+  QC
+  PACKED
+  READY_FOR_DELIVERY
+  OUT_FOR_DELIVERY
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  UPI
+  CREDIT_CARD
+  DEBIT_CARD
+  COD
+  WALLET
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum JobType {
+  PICKUP
+  DELIVERY
+}
+
+enum JobStatus {
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum AddressType {
+  HOME
+  OFFICE
+  OTHER
+}
+
+enum QCResult {
+  PASS
+  FAIL
+  DAMAGED
+  STAINED
+  MISSING
+  REPROCESS
+}
+
+enum ExceptionType {
+  QUANTITY_MISMATCH
+  DAMAGED_GARMENT
+  MISSING_GARMENT
+  FAILED_QC
+  FAILED_PAYMENT
+  FAILED_PICKUP
+  FAILED_DELIVERY
+  CUSTOMER_UNAVAILABLE
+  ADDRESS_ISSUE
+  SERVICEABILITY_ISSUE
+}
+
+enum ExceptionSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ExceptionStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum NotificationChannel {
+  PUSH
+  SMS
+  WHATSAPP
+  EMAIL
+  IN_APP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+}
+
+enum ServiceUnit {
+  PER_ITEM
+  PER_KG
+  PER_PAIR
+  PER_PANEL
+  PER_SET
+}
+
+enum CouponType {
+  PERCENTAGE
+  FLAT
+  FREE_DELIVERY
+}
+
+enum MembershipTier {
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+// ============================================================
+// USERS & AUTH
+// ============================================================
+
+model User {
+  id            String    @id @default(cuid())
+  mobile        String    @unique
+  email         String?   @unique
+  name          String?
+  avatarUrl     String?
+  role          UserRole  @default(CUSTOMER)
+  isActive      Boolean   @default(true)
+  isVerified    Boolean   @default(false)
+  fcmToken      String?
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  customer      Customer?
+  driver        Driver?
+  staffProfile  StaffProfile?
+  otpRequests   OtpRequest[]
+  auditLogs     AuditLog[]     @relation("AuditUser")
+  notifications Notification[]
+  sessions      UserSession[]
+
+  @@index([mobile])
+  @@index([role])
+  @@map("users")
+}
+
+model UserSession {
+  id           String   @id @default(cuid())
+  userId       String
+  refreshToken String   @unique
+  deviceInfo   String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_sessions")
+}
+
+model OtpRequest {
+  id          String   @id @default(cuid())
+  userId      String?
+  mobile      String
+  otp         String
+  attempts    Int      @default(0)
+  isUsed      Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([mobile])
+  @@index([expiresAt])
+  @@map("otp_requests")
+}
+
+// ============================================================
+// RBAC
+// ============================================================
+
+model Permission {
+  id          String   @id @default(cuid())
+  code        String   @unique // e.g. "orders.view", "payments.refund"
+  name        String
+  description String?
+  module      String
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@index([module])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  role         UserRole
+  permissionId String
+  createdAt    DateTime   @default(now())
+
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+  @@map("role_permissions")
+}
+
+// ============================================================
+// CUSTOMER
+// ============================================================
+
+model Customer {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  name          String
+  email         String?
+  mobile        String    @unique
+  avatarUrl     String?
+  dateOfBirth   DateTime?
+  isActive      Boolean   @default(true)
+  loyaltyPoints Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses     Address[]
+  orders        Order[]
+  tickets       SupportTicket[]
+  membership    Membership?
+  loyaltyTxns   LoyaltyTransaction[]
+
+  @@index([mobile])
+  @@map("customers")
+}
+
+model Address {
+  id           String      @id @default(cuid())
+  customerId   String
+  label        String      @default("Home")
+  type         AddressType @default(HOME)
+  line1        String
+  line2        String?
+  landmark     String?
+  city         String
+  state        String
+  pincode      String
+  lat          Float?
+  lng          Float?
+  isDefault    Boolean     @default(false)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  customer     Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  pickupOrders  Order[]    @relation("PickupAddress")
+  deliveryOrders Order[]   @relation("DeliveryAddress")
+
+  @@index([customerId])
+  @@index([pincode])
+  @@map("addresses")
+}
+
+// ============================================================
+// STAFF
+// ============================================================
+
+model StaffProfile {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  employeeId String?  @unique
+  department String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("staff_profiles")
+}
+
+// ============================================================
+// DRIVER
+// ============================================================
+
+model Driver {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  name            String
+  mobile          String    @unique
+  email           String?
+  avatarUrl       String?
+  licenseNumber   String?
+  vehicleType     String?
+  vehicleNumber   String?
+  isActive        Boolean   @default(true)
+  isAvailable     Boolean   @default(false)
+  currentLat      Float?
+  currentLng      Float?
+  processingCenterId String?
+  totalEarnings   Float     @default(0)
+  rating          Float     @default(0)
+  ratingCount     Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  processingCenter ProcessingCenter? @relation(fields: [processingCenterId], references: [id])
+  pickupJobs      PickupJob[]
+  deliveryJobs    DeliveryJob[]
+  earnings        DriverEarning[]
+
+  @@index([isActive, isAvailable])
+  @@map("drivers")
+}
+
+model DriverEarning {
+  id          String   @id @default(cuid())
+  driverId    String
+  jobType     JobType
+  jobId       String
+  amount      Float
+  description String?
+  earnedAt    DateTime @default(now())
+
+  driver Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([driverId])
+  @@index([earnedAt])
+  @@map("driver_earnings")
+}
+
+// ============================================================
+// PROCESSING CENTER
+// ============================================================
+
+model ProcessingCenter {
+  id           String   @id @default(cuid())
+  name         String
+  address      String
+  city         String
+  pincode      String
+  phone        String?
+  email        String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  drivers         Driver[]
+  orders          Order[]
+  processingRecords ProcessingRecord[]
+
+  @@map("processing_centers")
+}
+
+// ============================================================
+// SERVICES
+// ============================================================
+
+model Service {
+  id              String      @id @default(cuid())
+  name            String
+  slug            String      @unique
+  description     String?
+  iconUrl         String?
+  imageUrl        String?
+  unit            ServiceUnit @default(PER_ITEM)
+  basePrice       Float
+  turnaroundDays  Int         @default(2)
+  minOrderValue   Float       @default(0)
+  isActive        Boolean     @default(true)
+  sortOrder       Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
+
+  garments        Garment[]
+  orders          Order[]
+
+  @@index([isActive])
+  @@map("services")
+}
+
+model Garment {
+  id           String   @id @default(cuid())
+  serviceId    String
+  name         String
+  slug         String
+  description  String?
+  imageUrl     String?
+  skuCode      String?  @unique
+  unitPrice    Float
+  minQty       Int      @default(0)
+  maxQty       Int?
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  service    Service     @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  orderItems OrderItem[]
+  qcRecords  QCRecord[]
+
+  @@index([serviceId])
+  @@index([isActive])
+  @@map("garments")
+}
+
+// ============================================================
+// SERVICEABLE AREAS
+// ============================================================
+
+model ServiceableArea {
+  id              String   @id @default(cuid())
+  pincode         String   @unique
+  area            String
+  city            String
+  state           String
+  isActive        Boolean  @default(true)
+  isCodEnabled    Boolean  @default(true)
+  minOrderValue   Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  pickupSlots  PickupSlot[]
+  deliverySlots DeliverySlot[]
+
+  @@index([pincode])
+  @@map("serviceable_areas")
+}
+
+model PickupSlot {
+  id                String   @id @default(cuid())
+  serviceableAreaId String?
+  label             String   // "10 AM - 12 PM"
+  startTime         String   // "10:00"
+  endTime           String   // "12:00"
+  dayOfWeek         Int[]    // 0=Sun ... 6=Sat; empty = all days
+  maxCapacity       Int      @default(10)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  serviceableArea ServiceableArea? @relation(fields: [serviceableAreaId], references: [id])
+
+  @@map("pickup_slots")
+}
+
+model DeliverySlot {
+  id                String   @id @default(cuid())
+  serviceableAreaId String?
+  label             String
+  startTime         String
+  endTime           String
+  dayOfWeek         Int[]
+  maxCapacity       Int      @default(10)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  serviceableArea ServiceableArea? @relation(fields: [serviceableAreaId], references: [id])
+
+  @@map("delivery_slots")
+}
+
+// ============================================================
+// ORDERS
+// ============================================================
+
+model Order {
+  id                  String      @id @default(cuid())
+  orderNumber         String      @unique  // ORD-20260922-001
+  customerId          String
+  serviceId           String
+  processingCenterId  String?
+  pickupAddressId     String
+  deliveryAddressId   String
+  pickupDate          DateTime
+  pickupSlotLabel     String
+  deliveryDate        DateTime?
+  deliverySlotLabel   String?
+  status              OrderStatus @default(BOOKED)
+  specialInstructions String?
+  garmentCount        Int         @default(0)
+  subtotal            Float       @default(0)
+  discountAmount      Float       @default(0)
+  deliveryCharge      Float       @default(0)
+  serviceCharge       Float       @default(0)
+  taxAmount           Float       @default(0)
+  totalAmount         Float       @default(0)
+  paymentMethod       PaymentMethod @default(COD)
+  paymentStatus       PaymentStatus @default(PENDING)
+  couponCode          String?
+  cancelReason        String?
+  cancelledAt         DateTime?
+  cancelledBy         String?
+  completedAt         DateTime?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  deletedAt           DateTime?
+
+  customer         Customer    @relation(fields: [customerId], references: [id])
+  service          Service     @relation(fields: [serviceId], references: [id])
+  processingCenter ProcessingCenter? @relation(fields: [processingCenterId], references: [id])
+  pickupAddress    Address     @relation("PickupAddress", fields: [pickupAddressId], references: [id])
+  deliveryAddress  Address     @relation("DeliveryAddress", fields: [deliveryAddressId], references: [id])
+  items            OrderItem[]
+  statusHistory    OrderStatusHistory[]
+  pickupJob        PickupJob?
+  deliveryJob      DeliveryJob?
+  payment          Payment?
+  invoice          Invoice?
+  exceptions       Exception[]
+  processingRecord ProcessingRecord?
+  qcRecords        QCRecord[]
+  ticket           SupportTicket[]
+  notifications    Notification[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([orderNumber])
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  orderId      String
+  garmentId    String
+  garmentName  String
+  quantity     Int
+  unitPrice    Float
+  subtotal     Float
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  garment Garment @relation(fields: [garmentId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  status    OrderStatus
+  changedBy String?     // user id
+  changedByRole UserRole?
+  notes     String?
+  metadata  Json?
+  createdAt DateTime    @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([createdAt])
+  @@map("order_status_history")
+}
+
+// ============================================================
+// PICKUP & DELIVERY JOBS
+// ============================================================
+
+model PickupJob {
+  id                String    @id @default(cuid())
+  orderId           String    @unique
+  driverId          String?
+  status            JobStatus @default(ASSIGNED)
+  scheduledAt       DateTime
+  startedAt         DateTime?
+  completedAt       DateTime?
+  otpVerified       Boolean   @default(false)
+  photoUrl          String?
+  collectedQty      Int?
+  expectedQty       Int?
+  notes             String?
+  failReason        String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  order  Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  driver Driver? @relation(fields: [driverId], references: [id])
+
+  @@index([driverId])
+  @@index([status])
+  @@map("pickup_jobs")
+}
+
+model DeliveryJob {
+  id                String    @id @default(cuid())
+  orderId           String    @unique
+  driverId          String?
+  status            JobStatus @default(ASSIGNED)
+  scheduledAt       DateTime
+  startedAt         DateTime?
+  completedAt       DateTime?
+  otpVerified       Boolean   @default(false)
+  photoUrl          String?
+  deliveredQty      Int?
+  codCollected      Float?
+  notes             String?
+  failReason        String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  order  Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  driver Driver? @relation(fields: [driverId], references: [id])
+
+  @@index([driverId])
+  @@index([status])
+  @@map("delivery_jobs")
+}
+
+// ============================================================
+// PROCESSING & QC
+// ============================================================
+
+model ProcessingRecord {
+  id                 String   @id @default(cuid())
+  orderId            String   @unique
+  processingCenterId String
+  receivedBy         String?  // staff user id
+  receivedAt         DateTime?
+  expectedQty        Int
+  receivedQty        Int?
+  qtyMismatch        Boolean  @default(false)
+  currentStage       String   @default("RECEIVED")
+  completedAt        DateTime?
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  order            Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  processingCenter ProcessingCenter @relation(fields: [processingCenterId], references: [id])
+
+  @@map("processing_records")
+}
+
+model QCRecord {
+  id             String   @id @default(cuid())
+  orderId        String
+  garmentId      String?
+  garmentName    String?
+  result         QCResult
+  checkedBy      String?  // staff user id
+  checkedAt      DateTime @default(now())
+  notes          String?
+  imageUrl       String?
+  requiresReprocess Boolean @default(false)
+  resolvedAt     DateTime?
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  garment Garment? @relation(fields: [garmentId], references: [id])
+
+  @@index([orderId])
+  @@map("qc_records")
+}
+
+// ============================================================
+// PAYMENT & INVOICE
+// ============================================================
+
+model Payment {
+  id                String        @id @default(cuid())
+  orderId           String        @unique
+  method            PaymentMethod
+  status            PaymentStatus @default(PENDING)
+  amount            Float
+  currency          String        @default("INR")
+  gatewayOrderId    String?
+  gatewayPaymentId  String?
+  gatewaySignature  String?
+  gatewayResponse   Json?
+  refundId          String?
+  refundAmount      Float?
+  refundReason      String?
+  refundedAt        DateTime?
+  paidAt            DateTime?
+  failReason        String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([gatewayPaymentId])
+  @@map("payments")
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  orderId       String   @unique
+  invoiceNumber String   @unique  // INV-20260922-001
+  issuedAt      DateTime @default(now())
+  dueDate       DateTime?
+  pdfUrl        String?
+  subtotal      Float
+  discount      Float    @default(0)
+  deliveryCharge Float   @default(0)
+  serviceCharge Float    @default(0)
+  taxAmount     Float    @default(0)
+  total         Float
+  createdAt     DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("invoices")
+}
+
+// ============================================================
+// EXCEPTIONS
+// ============================================================
+
+model Exception {
+  id          String            @id @default(cuid())
+  orderId     String?
+  garmentId   String?
+  type        ExceptionType
+  severity    ExceptionSeverity @default(MEDIUM)
+  description String
+  status      ExceptionStatus   @default(OPEN)
+  createdBy   String?
+  resolvedBy  String?
+  resolvedAt  DateTime?
+  resolution  String?
+  metadata    Json?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([status])
+  @@index([type])
+  @@map("exceptions")
+}
+
+// ============================================================
+// SUPPORT TICKETS
+// ============================================================
+
+model SupportTicket {
+  id           String       @id @default(cuid())
+  customerId   String
+  orderId      String?
+  ticketNumber String       @unique
+  category     String
+  subject      String
+  description  String
+  status       TicketStatus @default(OPEN)
+  priority     String       @default("MEDIUM")
+  assignedTo   String?
+  closedAt     DateTime?
+  closedBy     String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  customer Customer       @relation(fields: [customerId], references: [id])
+  order    Order?         @relation(fields: [orderId], references: [id])
+  messages TicketMessage[]
+
+  @@index([customerId])
+  @@index([status])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  senderId  String
+  senderRole UserRole
+  message   String
+  imageUrl  String?
+  isInternal Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_messages")
+}
+
+// ============================================================
+// OFFERS & COUPONS
+// ============================================================
+
+model Coupon {
+  id              String     @id @default(cuid())
+  code            String     @unique
+  name            String
+  description     String?
+  type            CouponType
+  value           Float      // percentage or flat amount
+  minOrderValue   Float      @default(0)
+  maxDiscountAmt  Float?
+  usageLimit      Int?
+  usageCount      Int        @default(0)
+  perUserLimit    Int        @default(1)
+  serviceId       String?    // null = all services
+  isFirstOrder    Boolean    @default(false)
+  isActive        Boolean    @default(true)
+  validFrom       DateTime
+  validUntil      DateTime
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([code])
+  @@index([isActive])
+  @@map("coupons")
+}
+
+// ============================================================
+// MEMBERSHIP & LOYALTY
+// ============================================================
+
+model Membership {
+  id           String         @id @default(cuid())
+  customerId   String         @unique
+  tier         MembershipTier @default(SILVER)
+  isActive     Boolean        @default(true)
+  startsAt     DateTime
+  expiresAt    DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@map("memberships")
+}
+
+model LoyaltyTransaction {
+  id          String   @id @default(cuid())
+  customerId  String
+  orderId     String?
+  points      Int      // positive = earned, negative = redeemed
+  description String
+  createdAt   DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@map("loyalty_transactions")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model NotificationTemplate {
+  id        String              @id @default(cuid())
+  event     String              @unique
+  channel   NotificationChannel
+  subject   String?
+  body      String              // supports {{variable}} placeholders
+  isActive  Boolean             @default(true)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@map("notification_templates")
+}
+
+model Notification {
+  id         String              @id @default(cuid())
+  userId     String
+  orderId    String?
+  channel    NotificationChannel
+  status     NotificationStatus  @default(PENDING)
+  subject    String?
+  body       String
+  sentAt     DateTime?
+  deliveredAt DateTime?
+  failReason String?
+  createdAt  DateTime            @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@map("notifications")
+}
+
+// ============================================================
+// AUDIT LOG
+// ============================================================
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  userRole     UserRole?
+  action       String   // e.g. "order.status_changed"
+  entity       String   // e.g. "Order"
+  entityId     String
+  previousData Json?
+  newData      Json?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  user User? @relation("AuditUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  category  String   @default("general")
+  isPublic  Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@index([category])
+  @@map("settings")
+}

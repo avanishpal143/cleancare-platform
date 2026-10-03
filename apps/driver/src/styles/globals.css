@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-slate-100 text-slate-900 font-sans antialiased; }
+}
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center font-semibold transition-all duration-200 rounded-2xl focus:outline-none focus-visible:ring-2 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.97]; }
+  .btn-primary { @apply btn bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-500/20; }
+  .btn-success { @apply btn bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm shadow-emerald-500/20; }
+  .btn-outline { @apply btn border-2 border-slate-200 text-slate-700 hover:border-blue-500 hover:text-blue-600 bg-white; }
+  .btn-ghost   { @apply btn text-slate-600 hover:bg-slate-100 bg-transparent; }
+  .btn-sm   { @apply h-10 px-4 text-xs font-semibold; }
+  .btn-md   { @apply h-12 px-6 text-sm font-semibold; }
+  .btn-lg   { @apply h-14 px-8 text-base font-bold; }
+  .btn-full { @apply w-full; }
+  .card { @apply bg-white rounded-2xl shadow-sm border border-slate-100; }
+  .chip { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold; }
+  .chip-pickup   { @apply chip bg-emerald-50 text-emerald-700 border border-emerald-200; }
+  .chip-delivery { @apply chip bg-amber-50 text-amber-700 border border-amber-200; }
+  .chip-done     { @apply chip bg-emerald-50 text-emerald-700; }
+  .chip-pending  { @apply chip bg-slate-100 text-slate-500; }
+  .input { @apply w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all; }
+  .section-title { @apply text-xs font-bold text-slate-500 uppercase tracking-wider; }
+  .otp-input { @apply w-12 h-14 text-center text-2xl font-bold border-2 border-slate-200 rounded-xl bg-slate-50 text-slate-900 focus:border-blue-600 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all; }
+  .otp-input.filled { @apply border-blue-600 bg-blue-50 text-blue-700; }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-top    { padding-top: env(safe-area-inset-top); }
+}

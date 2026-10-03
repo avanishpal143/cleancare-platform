@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 37 99 235;    /* primary-600 */
+    --color-navy:    15 23 42;     /* navy-900 */
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply text-slate-900 antialiased font-sans min-h-screen;
+    background: linear-gradient(180deg, #f0f7ff 0%, #f6faff 35%, #ebf5ff 70%, #f1f8ff 100%);
+    background-attachment: fixed;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input, textarea, select {
+    @apply appearance-none;
+  }
+
+  .safe-top    { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .touch-pan-y { touch-action: pan-y; }
+  .no-tap-highlight { -webkit-tap-highlight-color: transparent; }
+
+  /* Smooth pulse animation */
+  @keyframes pulseGlow {
+    0%, 100% { opacity: 0.45; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.08); }
+  }
+
+  @keyframes floatSlow {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-7px) rotate(0.6deg); }
+  }
+
+  @keyframes float3D {
+    0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+    33% { transform: translateY(-5px) scale(1.03) rotate(-1deg); }
+    66% { transform: translateY(2px) scale(0.98) rotate(1deg); }
+  }
+
+  @keyframes waterWave {
+    0%, 100% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(25px, -18px) scale(1.06); }
+    66% { transform: translate(-18px, 15px) scale(0.97); }
+  }
+
+  @keyframes specularSheen {
+    0% { transform: translateX(-160%) skewX(-20deg); }
+    30%, 100% { transform: translateX(180%) skewX(-20deg); }
+  }
+
+  @keyframes rippleRing {
+    0% { transform: scale(0.85); opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
+  @keyframes bubbleFloat {
+    0% { transform: translateY(0px) scale(0.8); opacity: 0.4; }
+    50% { transform: translateY(-12px) scale(1.1); opacity: 0.9; }
+    100% { transform: translateY(-24px) scale(0.6); opacity: 0; }
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 4s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: floatSlow 5s ease-in-out infinite;
+  }
+
+  .animate-float-3d {
+    animation: float3D 6s ease-in-out infinite;
+  }
+
+  .animate-sheen {
+    animation: specularSheen 3.8s ease-in-out infinite;
+  }
+
+  .animate-ripple {
+    animation: rippleRing 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  }
+
+  .animate-bubble {
+    animation: bubbleFloat 3s ease-in-out infinite;
+  }
+
+  .animate-water-wave {
+    animation: waterWave 9s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    animation: specularSheen 3s infinite;
+  }
+}
