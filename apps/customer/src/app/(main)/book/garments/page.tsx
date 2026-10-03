@@ -95,19 +95,17 @@ export default function SelectGarmentsPage() {
         setItemQty(
           {
             id: g.id,
-            name: g.name,
             serviceId: selectedService?.id || 'dry-cleaning',
+            name: g.name,
+            slug: g.id,
             unitPrice: g.price,
-            pieceCount: 1,
-            unit: 'PER_ITEM',
-            imageUrl: null,
-            sortOrder: 1,
+            minQty: 1,
             isActive: true,
-            createdAt: '',
-            updatedAt: '',
+            sortOrder: 1,
           },
           g.qty
         );
+
       }
     });
     router.push('/book/pickup');

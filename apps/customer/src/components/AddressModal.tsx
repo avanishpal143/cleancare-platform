@@ -40,7 +40,7 @@ export default function AddressModal({ addresses, selected, onSelect, onAddNew, 
             </div>
           ) : (
             addresses.map((addr) => {
-              const { Icon, color, bg } = TYPE_ICONS[addr.type] ?? TYPE_ICONS.OTHER;
+              const { Icon, color, bg } = (addr.type && TYPE_ICONS[addr.type]) ? TYPE_ICONS[addr.type] : TYPE_ICONS.OTHER;
               const isSelected = selected?.id === addr.id;
 
               return (

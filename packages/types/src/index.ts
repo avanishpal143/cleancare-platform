@@ -83,13 +83,15 @@ export interface JwtPayload {
 export interface UserDTO {
   id: string;
   mobile: string;
-  email?: string;
-  name?: string;
-  avatarUrl?: string;
+  email?: string | null;
+  name?: string | null;
+  avatarUrl?: string | null;
   role: UserRole;
-  isActive: boolean;
-  isVerified: boolean;
+  isActive?: boolean;
+  isVerified?: boolean;
+  status?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 // ---- Customer ----
@@ -98,13 +100,17 @@ export interface CustomerDTO {
   id: string;
   userId: string;
   name: string;
-  email?: string;
+  email?: string | null;
   mobile: string;
-  avatarUrl?: string;
-  loyaltyPoints: number;
-  isActive: boolean;
+  avatarUrl?: string | null;
+  loyaltyPoints?: number;
+  isActive?: boolean;
+  isBlocked?: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
+
+
 
 // ---- Address ----
 
@@ -112,15 +118,15 @@ export interface AddressDTO {
   id: string;
   customerId: string;
   label: string;
-  type: AddressType;
+  type?: AddressType;
   line1: string;
-  line2?: string;
-  landmark?: string;
+  line2?: string | null;
+  landmark?: string | null;
   city: string;
   state: string;
   pincode: string;
-  lat?: number;
-  lng?: number;
+  lat?: number | null;
+  lng?: number | null;
   isDefault: boolean;
 }
 
@@ -144,9 +150,9 @@ export interface ServiceDTO {
   id: string;
   name: string;
   slug: string;
-  description?: string;
-  iconUrl?: string;
-  imageUrl?: string;
+  description?: string | null;
+  iconUrl?: string | null;
+  imageUrl?: string | null;
   unit: ServiceUnit;
   basePrice: number;
   turnaroundDays: number;
@@ -154,6 +160,9 @@ export interface ServiceDTO {
   isActive: boolean;
   sortOrder: number;
   garmentCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
 }
 
 export interface CreateServiceDTO {
@@ -171,18 +180,24 @@ export interface CreateServiceDTO {
 export interface GarmentDTO {
   id: string;
   serviceId: string;
-  serviceName?: string;
+  serviceName?: string | null;
   name: string;
-  slug: string;
-  description?: string;
-  imageUrl?: string;
-  skuCode?: string;
+  slug?: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  skuCode?: string | null;
   unitPrice: number;
-  minQty: number;
-  maxQty?: number;
+  minQty?: number;
+  maxQty?: number | null;
+  pieceCount?: number;
+  unit?: string;
   isActive: boolean;
   sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+
 
 // ---- Order ----
 

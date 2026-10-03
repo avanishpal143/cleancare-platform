@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -73,23 +74,25 @@ export default function LoginPage() {
         name: 'Satyanarayan',
         mobile: mobile,
         email: 'satyanarayan@example.com',
-        avatarUrl: null,
-        isBlocked: false,
+        avatarUrl: undefined,
+        loyaltyPoints: 0,
+        isActive: true,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
       };
       setTokens('dev_access_token', 'dev_refresh_token');
+
       setUser(
         {
           id: 'usr_satyanarayan',
           mobile: mobile,
           role: 'CUSTOMER',
-          status: 'ACTIVE',
+          isActive: true,
+          isVerified: true,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
         },
         dummyCustomer
       );
+
       toast.success('Logged in as Satyanarayan!');
       router.replace('/home');
     } finally {
@@ -128,10 +131,10 @@ export default function LoginPage() {
         name: name,
         mobile: num,
         email: `${name.toLowerCase().replace(/\s+/g, '')}@example.com`,
-        avatarUrl: null,
-        isBlocked: false,
+        avatarUrl: undefined,
+        loyaltyPoints: 0,
+        isActive: true,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
       };
       setTokens('dev_access_token', 'dev_refresh_token');
       setUser(
@@ -139,12 +142,13 @@ export default function LoginPage() {
           id: dummyCustomer.userId,
           mobile: num,
           role: 'CUSTOMER',
-          status: 'ACTIVE',
+          isActive: true,
+          isVerified: true,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
         },
         dummyCustomer
       );
+
       toast.success(`Welcome, ${name}!`);
       router.replace('/home');
     } finally {
