@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "ts-node -r tsconfig-paths/register src/main.ts",
     "dev:watch": "nest start --watch",
-    "build": "prisma generate --schema=../database/prisma/schema.prisma && npx nest build",
-    "buildyarn": "prisma generate --schema=../database/prisma/schema.prisma && npx nest build",
+    "build": "prisma generate --schema=../database/prisma/schema.prisma && npx nest build && node -e 'const fs=require(\"fs\"); if(fs.existsSync(\"dist/backend/src/main.js\") && !fs.existsSync(\"dist/main.js\")) fs.writeFileSync(\"dist/main.js\", \"require(\\\"./backend/src/main.js\\\");\");'",
+    "buildyarn": "prisma generate --schema=../database/prisma/schema.prisma && npx nest build && node -e 'const fs=require(\"fs\"); if(fs.existsSync(\"dist/backend/src/main.js\") && !fs.existsSync(\"dist/main.js\")) fs.writeFileSync(\"dist/main.js\", \"require(\\\"./backend/src/main.js\\\");\");'",
     "start": "node dist/main",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\"",
     "prisma:generate": "prisma generate --schema=../database/prisma/schema.prisma",
@@ -53,14 +53,15 @@
     "@nestjs/cli": "10.3.2",
     "typescript": "5.3.3",
     "ts-node": "10.9.2",
-    "tsconfig-paths": "4.2.0"
-  },
-  "devDependencies": {
-    "@nestjs/testing": "10.3.9",
+    "tsconfig-paths": "4.2.0",
     "@types/bcryptjs": "2.4.6",
     "@types/compression": "1.7.5",
     "@types/multer": "1.4.11",
     "@types/node": "20.12.7",
     "@types/passport-jwt": "4.0.1"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "10.3.9"
   }
 }
+

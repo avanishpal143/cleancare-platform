@@ -4,6 +4,7 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import * as crypto from 'crypto';
 import * as path from 'path';
+import 'multer';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg','image/jpg','image/png','image/webp'];
 const MAX_FILE_SIZE_MB   = 10;

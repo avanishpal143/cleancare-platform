@@ -2,6 +2,7 @@ import { Controller, Post, UploadedFile, UseInterceptors, BadRequestException } 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { StorageService } from './storage.service';
+import 'multer';
 
 @ApiTags('Storage')
 @ApiBearerAuth()
