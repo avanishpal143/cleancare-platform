@@ -43,7 +43,9 @@ export default function MasterGatewayPage() {
         name: name,
         mobile: mobile,
         email: `${name.toLowerCase().replace(/\s+/g, '')}@example.com`,
-        avatarUrl: null,
+        avatarUrl: undefined,
+        loyaltyPoints: 0,
+        isActive: true,
         isBlocked: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -54,6 +56,8 @@ export default function MasterGatewayPage() {
           id: dummyCustomer.userId,
           mobile: mobile,
           role: 'CUSTOMER',
+          isActive: true,
+          isVerified: true,
           status: 'ACTIVE',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -65,15 +69,18 @@ export default function MasterGatewayPage() {
     }
   };
 
+  const DRIVER_URL = process.env.NEXT_PUBLIC_DRIVER_URL || 'https://cleancare-driver.vercel.app';
+  const ADMIN_URL = process.env.NEXT_PUBLIC_ADMIN_URL || 'https://cleancare-admin-six.vercel.app';
+  const API_DOCS_URL = 'https://cleancare-platform.onrender.com/api/docs';
+
   const handleOpenDriver = (mobile: string = '9876500010') => {
-    // Open driver app in port 3001
-    window.location.href = `http://localhost:3001/login?autoMobile=${mobile}`;
+    window.open(`${DRIVER_URL}/login?autoMobile=${mobile}`, '_blank');
   };
 
   const handleOpenAdmin = (mobile: string = '9800000001') => {
-    // Open admin app in port 3002
-    window.location.href = `http://localhost:3002/login?autoMobile=${mobile}`;
+    window.open(`${ADMIN_URL}/login?autoMobile=${mobile}`, '_blank');
   };
+
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-600 selection:text-white relative overflow-x-hidden antialiased">
@@ -106,246 +113,251 @@ export default function MasterGatewayPage() {
             </div>
           </div>
 
-          {/* System Status Indicators */}
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300 font-medium">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            {/* System Status Indicators */}
+            <div className="flex items-center gap-3">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300 font-medium">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>Render API • Neon DB Live</span>
+              </div>
+
+              <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300 font-medium">
+                <span className="w-2 h-2 rounded-full bg-sky-400" />
+                <span>PostgreSQL 36 Tables</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={API_DOCS_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all flex items-center gap-1.5"
+                >
+                  <span>Swagger API</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* ── Main Hero Section ───────────────────────────────────────────── */}
+        <main className="max-w-7xl mx-auto px-6 pt-12 pb-20">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold mb-6 backdrop-blur-md">
+              <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+              <span>Select Your CleanCare Portal • Single Sign-On Ready</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
+              Kaha Login Karna Hai? <br />
+              <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
+                Choose Your Workspace
               </span>
-              <span>Backend API :4000 Ready</span>
-            </div>
+            </h1>
 
-            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300 font-medium">
-              <span className="w-2 h-2 rounded-full bg-sky-400" />
-              <span>PostgreSQL 36 Tables</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <a
-                href="http://localhost:4000/api/docs"
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all flex items-center gap-1.5"
-              >
-                <span>Swagger API</span>
-                <ExternalLink className="w-3 h-3 text-slate-400" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* ── Main Hero Section ───────────────────────────────────────────── */}
-      <main className="max-w-7xl mx-auto px-6 pt-12 pb-20">
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold mb-6 backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
-            <span>Select Your CleanCare Portal • Single Sign-On Ready</span>
+            <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto">
+              CleanCare connects Customers, Drivers, and Admin Operations in real time.
+              Click any portal below to log in or use the 1-click test credentials.
+            </p>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6">
-            Kaha Login Karna Hai? <br />
-            <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
-              Choose Your Workspace
-            </span>
-          </h1>
+          {/* ── 3 Big Interactive App Cards ─────────────────────────────────── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            {/* ── CARD 1: CUSTOMER APP ──────────────────────────────────────── */}
+            <div className="group relative rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/60 p-7 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 flex flex-col justify-between overflow-hidden">
+              {/* Ambient Card Glow */}
+              <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-blue-500/10 blur-2xl group-hover:bg-blue-500/20 transition-all pointer-events-none" />
 
-          <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-2xl mx-auto">
-            CleanCare connects Customers, Drivers, and Admin Operations in real time.
-            Click any portal below to log in or use the 1-click test credentials.
-          </p>
-        </div>
-
-        {/* ── 3 Big Interactive App Cards ─────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {/* ── CARD 1: CUSTOMER APP ──────────────────────────────────────── */}
-          <div className="group relative rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/60 p-7 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 flex flex-col justify-between overflow-hidden">
-            {/* Ambient Card Glow */}
-            <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-blue-500/10 blur-2xl group-hover:bg-blue-500/20 transition-all pointer-events-none" />
-
-            <div>
-              {/* Header Badges */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
-                  <Smartphone className="w-7 h-7 text-blue-400" />
+              <div>
+                {/* Header Badges */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-105 transition-transform">
+                    <Smartphone className="w-7 h-7 text-blue-400" />
+                  </div>
+                  <div className="text-right">
+                    <span className="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 text-xs font-bold border border-blue-500/20">
+                      Live App
+                    </span>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Customer Portal</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 text-xs font-bold border border-blue-500/20">
-                    Port :3000
-                  </span>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Mobile Web PWA</p>
-                </div>
-              </div>
 
-              {/* Title & Description */}
-              <h3 className="text-2xl font-black text-white tracking-tight mb-2 group-hover:text-blue-300 transition-colors">
-                Customer App
-              </h3>
-              <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6">
-                Doorstep laundry booking, 3D interactive garment selection, live step-by-step garment tracking & digital payments.
-              </p>
+                {/* Title & Description */}
+                <h3 className="text-2xl font-black text-white tracking-tight mb-2 group-hover:text-blue-300 transition-colors">
+                  Customer App
+                </h3>
+                <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6">
+                  Doorstep laundry booking, 3D interactive garment selection, live step-by-step garment tracking & digital payments.
+                </p>
 
-              {/* Key Features List */}
-              <div className="space-y-2.5 mb-8">
-                <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Doorstep pickup in 30 minutes</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>3D garment catalog & live price estimate</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Real-time timeline order tracker</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-3 pt-4 border-t border-slate-800">
-              <Link
-                href="/login"
-                className="w-full py-3.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-              >
-                <span>Go to Customer Login</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <button
-                onClick={() => handleInstantCustomerLogin('Rahul Sharma', '9876543210')}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-blue-300 hover:text-white font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2"
-              >
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span>⚡ 1-Click Login (Rahul Sharma)</span>
-              </button>
-            </div>
-          </div>
-
-          {/* ── CARD 2: DRIVER PARTNER APP ─────────────────────────────────── */}
-          <div className="group relative rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/60 p-7 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/20 flex flex-col justify-between overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-emerald-500/10 blur-2xl group-hover:bg-emerald-500/20 transition-all pointer-events-none" />
-
-            <div>
-              {/* Header Badges */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
-                  <Truck className="w-7 h-7 text-emerald-400" />
-                </div>
-                <div className="text-right">
-                  <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-xs font-bold border border-emerald-500/20">
-                    Port :3001
-                  </span>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Driver Partner App</p>
+                {/* Key Features List */}
+                <div className="space-y-2.5 mb-8">
+                  <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>Doorstep pickup in 30 minutes</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>3D garment catalog & live price estimate</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>Real-time timeline order tracker</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Title & Description */}
-              <h3 className="text-2xl font-black text-white tracking-tight mb-2 group-hover:text-emerald-300 transition-colors">
-                Driver Partner App
-              </h3>
-              <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6">
-                Dedicated driver tool for pickup routes, customer OTP handoff verification, quantity count check & instant earnings.
-              </p>
+              {/* Actions */}
+              <div className="space-y-3 pt-4 border-t border-slate-800">
+                <Link
+                  href="/login"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <span>Go to Customer Login</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
 
-              {/* Key Features List */}
-              <div className="space-y-2.5 mb-8">
-                <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Assigned pickup & delivery jobs</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Customer OTP handoff verification</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Live earnings & daily stats dashboard</span>
-                </div>
+                <button
+                  onClick={() => handleInstantCustomerLogin('Rahul Sharma', '9876543210')}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-blue-300 hover:text-white font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2"
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                  <span>⚡ 1-Click Login (Rahul Sharma)</span>
+                </button>
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="space-y-3 pt-4 border-t border-slate-800">
-              <a
-                href="http://localhost:3001"
-                className="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-              >
-                <span>Launch Driver App (:3001)</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
+            {/* ── CARD 2: DRIVER PARTNER APP ─────────────────────────────────── */}
+            <div className="group relative rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/60 p-7 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/20 flex flex-col justify-between overflow-hidden">
+              <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-emerald-500/10 blur-2xl group-hover:bg-emerald-500/20 transition-all pointer-events-none" />
 
-              <button
-                onClick={() => handleOpenDriver('9876500010')}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-emerald-300 hover:text-white font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2"
-              >
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span>⚡ 1-Click Login (Rakesh Meena)</span>
-              </button>
-            </div>
-          </div>
-
-          {/* ── CARD 3: ADMIN & OPERATIONS PORTAL ──────────────────────────── */}
-          <div className="group relative rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/60 p-7 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 flex flex-col justify-between overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-purple-500/10 blur-2xl group-hover:bg-purple-500/20 transition-all pointer-events-none" />
-
-            <div>
-              {/* Header Badges */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform">
-                  <ShieldCheck className="w-7 h-7 text-purple-400" />
+              <div>
+                {/* Header Badges */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+                    <Truck className="w-7 h-7 text-emerald-400" />
+                  </div>
+                  <div className="text-right">
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-xs font-bold border border-emerald-500/20">
+                      Live App
+                    </span>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Driver Partner App</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 text-xs font-bold border border-purple-500/20">
-                    Port :3002
-                  </span>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Admin SaaS Portal</p>
+
+                {/* Title & Description */}
+                <h3 className="text-2xl font-black text-white tracking-tight mb-2 group-hover:text-emerald-300 transition-colors">
+                  Driver Partner App
+                </h3>
+                <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6">
+                  Dedicated driver tool for pickup routes, customer OTP handoff verification, quantity count check & instant earnings.
+                </p>
+
+                {/* Key Features List */}
+                <div className="space-y-2.5 mb-8">
+                  <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>Assigned pickup & delivery jobs</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>Customer OTP handoff verification</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>Live earnings & daily stats dashboard</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-3 pt-4 border-t border-slate-800">
+                <a
+                  href={`${DRIVER_URL}/login`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <span>Launch Driver App</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+
+                <button
+                  onClick={() => handleOpenDriver('9876500010')}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-emerald-300 hover:text-white font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2"
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                  <span>⚡ 1-Click Login (Rakesh Meena)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* ── CARD 3: ADMIN & OPERATIONS PORTAL ──────────────────────────── */}
+            <div className="group relative rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/60 p-7 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 flex flex-col justify-between overflow-hidden">
+              <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-purple-500/10 blur-2xl group-hover:bg-purple-500/20 transition-all pointer-events-none" />
+
+              <div>
+                {/* Header Badges */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform">
+                    <ShieldCheck className="w-7 h-7 text-purple-400" />
+                  </div>
+                  <div className="text-right">
+                    <span className="px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 text-xs font-bold border border-purple-500/20">
+                      Live App
+                    </span>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Admin SaaS Portal</p>
+                  </div>
+                </div>
+
+                {/* Title & Description */}
+                <h3 className="text-2xl font-black text-white tracking-tight mb-2 group-hover:text-purple-300 transition-colors">
+                  Admin & Ops Hub
+                </h3>
+                <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6">
+                  Full platform control: 10-stage order pipeline, driver allocation, QC pass/reprocess, and live financial charts.
+                </p>
+
+                {/* Key Features List */}
+                <div className="space-y-2.5 mb-8">
+                  <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>360° Order lifecycle management</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>Fleet & driver assignment engine</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>Catalog CRUD, QC workflow & analytics</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Title & Description */}
-              <h3 className="text-2xl font-black text-white tracking-tight mb-2 group-hover:text-purple-300 transition-colors">
-                Admin & Ops Hub
-              </h3>
-              <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6">
-                Full platform control: 10-stage order pipeline, driver allocation, QC pass/reprocess, and live financial charts.
-              </p>
+              {/* Actions */}
+              <div className="space-y-3 pt-4 border-t border-slate-800">
+                <a
+                  href={`${ADMIN_URL}/login`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-sm shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                >
+                  <span>Launch Admin Portal</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
 
-              {/* Key Features List */}
-              <div className="space-y-2.5 mb-8">
-                <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>360° Order lifecycle management</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Fleet & driver assignment engine</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs text-slate-300 font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Catalog CRUD, QC workflow & analytics</span>
-                </div>
-              </div>
-            </div>
+                <button
+                  onClick={() => handleOpenAdmin('9800000001')}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-purple-300 hover:text-white font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2"
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                  <span>⚡ 1-Click Login (Super Admin)</span>
+                </button>
 
-            {/* Actions */}
-            <div className="space-y-3 pt-4 border-t border-slate-800">
-              <a
-                href="http://localhost:3002"
-                className="w-full py-3.5 px-4 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-sm shadow-lg shadow-purple-600/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
-              >
-                <span>Launch Admin Portal (:3002)</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-
-              <button
-                onClick={() => handleOpenAdmin('9800000001')}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-purple-300 hover:text-white font-bold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2"
-              >
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span>⚡ 1-Click Login (Super Admin)</span>
-              </button>
             </div>
           </div>
         </div>
@@ -377,7 +389,7 @@ export default function MasterGatewayPage() {
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
                   Customer
                 </span>
-                <span className="text-[10px] text-slate-400 font-semibold">:3000</span>
+                <span className="text-[10px] text-emerald-400 font-semibold">● Live</span>
               </div>
               <p className="font-extrabold text-sm text-white">Rahul Sharma</p>
               <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/80">
@@ -404,7 +416,7 @@ export default function MasterGatewayPage() {
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                   Driver
                 </span>
-                <span className="text-[10px] text-slate-400 font-semibold">:3001</span>
+                <span className="text-[10px] text-emerald-400 font-semibold">● Live</span>
               </div>
               <p className="font-extrabold text-sm text-white">Rakesh Meena</p>
               <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/80">
@@ -431,7 +443,7 @@ export default function MasterGatewayPage() {
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   Super Admin
                 </span>
-                <span className="text-[10px] text-slate-400 font-semibold">:3002</span>
+                <span className="text-[10px] text-emerald-400 font-semibold">● Live</span>
               </div>
               <p className="font-extrabold text-sm text-white">System Admin</p>
               <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/80">
@@ -458,7 +470,7 @@ export default function MasterGatewayPage() {
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                   Ops Manager
                 </span>
-                <span className="text-[10px] text-slate-400 font-semibold">:3002</span>
+                <span className="text-[10px] text-emerald-400 font-semibold">● Live</span>
               </div>
               <p className="font-extrabold text-sm text-white">Logistics Lead</p>
               <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/80">
@@ -495,31 +507,31 @@ export default function MasterGatewayPage() {
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">
               <span className="w-7 h-7 rounded-full bg-blue-500/20 text-blue-400 font-black text-xs inline-flex items-center justify-center mb-2">1</span>
               <p className="text-xs font-bold text-white">Customer Books</p>
-              <p className="text-[10px] text-slate-400 mt-1">Select garments & slot (:3000)</p>
+              <p className="text-[10px] text-slate-400 mt-1">Select garments & slot</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">
               <span className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 font-black text-xs inline-flex items-center justify-center mb-2">2</span>
               <p className="text-xs font-bold text-white">Driver Picks Up</p>
-              <p className="text-[10px] text-slate-400 mt-1">OTP & garment count (:3001)</p>
+              <p className="text-[10px] text-slate-400 mt-1">OTP & garment count</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">
               <span className="w-7 h-7 rounded-full bg-purple-500/20 text-purple-400 font-black text-xs inline-flex items-center justify-center mb-2">3</span>
               <p className="text-xs font-bold text-white">Admin Processes</p>
-              <p className="text-[10px] text-slate-400 mt-1">Eco-wash & QC pass (:3002)</p>
+              <p className="text-[10px] text-slate-400 mt-1">Eco-wash & QC pass</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">
               <span className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 font-black text-xs inline-flex items-center justify-center mb-2">4</span>
               <p className="text-xs font-bold text-white">Driver Delivers</p>
-              <p className="text-[10px] text-slate-400 mt-1">Delivery OTP & POD (:3001)</p>
+              <p className="text-[10px] text-slate-400 mt-1">Delivery OTP & POD</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 col-span-2 sm:col-span-1">
               <span className="w-7 h-7 rounded-full bg-sky-500/20 text-sky-400 font-black text-xs inline-flex items-center justify-center mb-2">5</span>
               <p className="text-xs font-bold text-white">Order Completed</p>
-              <p className="text-[10px] text-slate-400 mt-1">Invoice & Rating (:3000)</p>
+              <p className="text-[10px] text-slate-400 mt-1">Invoice & Rating</p>
             </div>
           </div>
         </section>
@@ -528,8 +540,9 @@ export default function MasterGatewayPage() {
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <footer className="border-t border-slate-900 bg-slate-950 px-6 py-8 text-center text-xs text-slate-400 font-medium">
         <p>© 2026 CleanCare Technologies. Production Dry Cleaning & Laundry Architecture.</p>
-        <p className="mt-1 text-[11px] text-slate-400">All services running locally on ports 3000 (Customer), 3001 (Driver), 3002 (Admin), 4000 (NestJS API).</p>
+        <p className="mt-1 text-[11px] text-slate-400">Production Cloud: Customer (Vercel) • Driver (Vercel) • Admin (Vercel) • API (Render) • DB (Neon PostgreSQL)</p>
       </footer>
+
     </div>
   );
 }

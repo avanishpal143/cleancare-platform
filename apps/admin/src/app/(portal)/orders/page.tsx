@@ -7,7 +7,7 @@ import { clsx } from 'clsx';
 import axios from 'axios';
 import { format } from 'date-fns';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://cleancare-platform.onrender.com/api';
 function authH() { const t = localStorage.getItem('cc_admin_token'); return t ? { Authorization: `Bearer ${t}` } : {}; }
 
 const STATUS_OPTS = ['','BOOKED','PICKUP_ASSIGNED','PICKED_UP','RECEIVED','PROCESSING','QC','PACKED','READY_FOR_DELIVERY','OUT_FOR_DELIVERY','DELIVERED','COMPLETED','CANCELLED'];

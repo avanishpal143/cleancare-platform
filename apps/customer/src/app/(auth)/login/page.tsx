@@ -333,13 +333,14 @@ export default function LoginPage() {
                     ← Portal Gateway Hub
                   </Link>
                   <div className="flex items-center gap-2">
-                    <a href="http://localhost:3001" className="font-bold text-emerald-600 hover:underline">
+                    <a href={process.env.NEXT_PUBLIC_DRIVER_URL || 'https://cleancare-driver.vercel.app/login'} className="font-bold text-emerald-600 hover:underline">
                       Driver App →
                     </a>
-                    <a href="http://localhost:3002" className="font-bold text-purple-600 hover:underline">
+                    <a href={process.env.NEXT_PUBLIC_ADMIN_URL || 'https://cleancare-admin-six.vercel.app/login'} className="font-bold text-purple-600 hover:underline">
                       Admin Portal →
                     </a>
                   </div>
+
                 </div>
               </div>
             </>

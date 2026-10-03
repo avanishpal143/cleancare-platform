@@ -35,7 +35,7 @@ export default function PortalSwitcher({ currentApp = 'customer' }: { currentApp
           {/* Links to all apps */}
           <div className="space-y-1.5 mb-3">
             <a
-              href="http://localhost:3000"
+              href={process.env.NEXT_PUBLIC_CUSTOMER_URL || 'https://cleancare-platform.vercel.app'}
               className={`flex items-center justify-between p-2 rounded-xl transition-all ${
                 currentApp === 'customer'
                   ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40 font-bold'
@@ -46,11 +46,11 @@ export default function PortalSwitcher({ currentApp = 'customer' }: { currentApp
                 <Smartphone className="w-3.5 h-3.5 text-blue-400" />
                 <span>Customer App</span>
               </div>
-              <span className="text-[10px] text-slate-400">:3000</span>
+              <span className="text-[10px] text-emerald-400 font-semibold">Live</span>
             </a>
 
             <a
-              href="http://localhost:3001"
+              href={`${process.env.NEXT_PUBLIC_DRIVER_URL || 'https://cleancare-driver.vercel.app'}/login`}
               className={`flex items-center justify-between p-2 rounded-xl transition-all ${
                 currentApp === 'driver'
                   ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold'
@@ -61,11 +61,11 @@ export default function PortalSwitcher({ currentApp = 'customer' }: { currentApp
                 <Truck className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Driver Partner</span>
               </div>
-              <span className="text-[10px] text-slate-400">:3001</span>
+              <span className="text-[10px] text-emerald-400 font-semibold">Live</span>
             </a>
 
             <a
-              href="http://localhost:3002"
+              href={`${process.env.NEXT_PUBLIC_ADMIN_URL || 'https://cleancare-admin-six.vercel.app'}/login`}
               className={`flex items-center justify-between p-2 rounded-xl transition-all ${
                 currentApp === 'admin'
                   ? 'bg-purple-600/30 text-purple-300 border border-purple-500/40 font-bold'
@@ -76,11 +76,11 @@ export default function PortalSwitcher({ currentApp = 'customer' }: { currentApp
                 <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
                 <span>Admin Operations</span>
               </div>
-              <span className="text-[10px] text-slate-400">:3002</span>
+              <span className="text-[10px] text-emerald-400 font-semibold">Live</span>
             </a>
 
             <a
-              href="http://localhost:3000"
+              href={process.env.NEXT_PUBLIC_CUSTOMER_URL || 'https://cleancare-platform.vercel.app'}
               className="flex items-center justify-between p-2 rounded-xl bg-slate-900/40 hover:bg-slate-800 text-slate-400 hover:text-white transition-all"
             >
               <div className="flex items-center gap-2">
@@ -90,6 +90,7 @@ export default function PortalSwitcher({ currentApp = 'customer' }: { currentApp
               <span className="text-[10px]">🏠</span>
             </a>
           </div>
+
 
           {/* Quick OTP Copy */}
           <div className="pt-2 border-t border-slate-800 flex items-center justify-between">

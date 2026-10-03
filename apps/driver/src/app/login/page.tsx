@@ -6,7 +6,7 @@ import { Truck, Loader2, ArrowRight, ShieldCheck, Zap, Copy, Check, MapPin, Pack
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://cleancare-platform.onrender.com/api';
 
 export default function DriverLoginPage() {
   const router = useRouter();
@@ -286,13 +286,14 @@ export default function DriverLoginPage() {
 
         {/* Portal Cross-Links */}
         <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-200/80">
-          <a href="http://localhost:3000" className="font-bold text-blue-600 hover:underline">
-            ← Customer App (:3000)
+          <a href={process.env.NEXT_PUBLIC_CUSTOMER_URL || 'https://cleancare-platform.vercel.app'} className="font-bold text-blue-600 hover:underline">
+            ← Customer Portal
           </a>
-          <a href="http://localhost:3002" className="font-bold text-purple-600 hover:underline">
-            Admin Portal (:3002) →
+          <a href={process.env.NEXT_PUBLIC_ADMIN_URL || 'https://cleancare-admin-six.vercel.app/login'} className="font-bold text-purple-600 hover:underline">
+            Admin Portal →
           </a>
         </div>
+
       </div>
     </div>
   );

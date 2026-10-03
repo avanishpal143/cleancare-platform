@@ -13,7 +13,7 @@ import {
   ResponsiveContainer, CartesianGrid
 } from 'recharts';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://cleancare-platform.onrender.com/api';
 
 function authH() {
   const t = typeof window !== 'undefined' ? localStorage.getItem('cc_admin_token') : null;
