@@ -19,7 +19,7 @@ async function bootstrap() {
 
   // ---- CORS ----
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -42,16 +42,15 @@ async function bootstrap() {
   );
 
   // ---- Swagger ----
-  if (env !== 'production') {
-    const swaggerConfig = new DocumentBuilder()
-      .setTitle('CleanCare API')
-      .setDescription('CleanCare Dry Cleaning & Laundry Platform API')
-      .setVersion('1.0')
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup('api/docs', app, document);
-  }
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('CleanCare API')
+    .setDescription('CleanCare Dry Cleaning & Laundry Platform API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
+
 
   await app.listen(port);
   console.log(`\n🚀 CleanCare API → http://localhost:${port}/api`);
